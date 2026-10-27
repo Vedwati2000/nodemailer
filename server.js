@@ -10,8 +10,11 @@ const generateEmail = require("./services/groqService");
 const app = express();
 let emailHistory = [];
 
-app.use(cors());
+app.use(cors({
+    origin: "https://delightful-hamster-13471d.netlify.app"
+}));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -27,6 +30,17 @@ app.get("/", (req, res) => {
 
 app.post("/send-email", async (req, res) => {
     try {
+
+
+        console.log("Request body:", req.body);
+
+        if (!req.body) {
+            return res.status(400).json({
+                success: false,
+                message: "Request body is missing. Please send JSON data."
+            });
+        }
+
         const { to, category, absentDays } = req.body;
 
         if (!to || !category) {
@@ -154,6 +168,9 @@ app.get("/attendance/stats", (req, res) => {
 });
 
 const PORT = process.env.PORT || 4000;
+app.get("/send-email", (req, res) => {
+    res.send("Email API is working! Use a POST request to send an email.");
+});
 
 app.listen(PORT, () => {
     console.log(`Server running on port http://localhost:${PORT}`);
