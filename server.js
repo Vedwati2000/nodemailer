@@ -10,9 +10,22 @@ const generateEmail = require("./services/groqService");
 const app = express();
 let emailHistory = [];
 
+const allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://delightful-hamster-13471d.netlify.app"
+];
+
 app.use(cors({
-    origin: "https://delightful-hamster-13471d.netlify.app"
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    }
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -168,10 +181,11 @@ app.get("/attendance/stats", (req, res) => {
 });
 
 const PORT = process.env.PORT || 4000;
+
 app.get("/send-email", (req, res) => {
     res.send("Email API is working! Use a POST request to send an email.");
 });
 
-app.listen(PORT, () => {
-    console.log(`Server running on port http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server is running on port http://localhost:${PORT}`);
 });
